@@ -116,3 +116,14 @@ workflows:
                 - develop
                 - integration
 
+# Workflow pour la branche main
+main:
+  jobs:
+    - build
+    - unit-tests
+    - integration-tests
+    - compatibility-tests
+    - accessibility-tests
+    - performance-tests
+    - security-tests
+    - deploy
