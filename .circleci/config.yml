@@ -1,0 +1,126 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5
+
+environments:
+  dev: &dev "development"
+  int: &int "integration"
+  prod: &prod "production"
+
+jobs:
+  # Job de construction
+  build:
+    executor: node/default
+    steps:
+      - checkout
+      - run: echo "Installation des dépendances..."
+      - node/install-packages:
+          pkg-manager: npm
+      - run: echo "Analyse du code..."
+      - run: npm run lint
+      - run: echo "Cleaning et Packaging..."
+      - run: npm run build
+
+  # Job des tests unitaires
+  unit-tests:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: echo "Lancement des tests unitaires..."
+      - run: npm run test:unit
+
+  # Job des tests d'intégration
+  integration-tests:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: echo "Lancement des tests d'intégration..."
+      - run: npm run test:integration
+
+  # Job des tests de compatibilité navigateurs
+  compatibility-tests:
+    executor: node/default
+    steps:
+      - checkout
+      - run: echo "Tests de compatibilité navigateurs..."
+      - run: npm run test:compatibility
+
+  # Job des tests d'accessibilité
+  accessibility-tests:
+    executor: node/default
+    steps:
+      - checkout
+      - run: echo "Tests d'accessibilité en cours..."
+      - run: npm run test:accessibility
+
+  # Job des tests de performance
+  performance-tests:
+    executor: node/default
+    steps:
+      - checkout
+      - run: echo "Tests de performance..."
+      - run: npm run test:performance
+
+  # Job des tests de sécurité
+  security-tests:
+    executor: node/default
+    steps:
+      - checkout
+      - run: echo "Analyse de sécurité..."
+      - run: npm audit
+
+  # Job de déploiement
+  deploy:
+    executor: node/default
+    steps:
+      - checkout
+      - run: echo "Déploiement en cours..."
+      - run: npm run deploy
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - unit-tests:
+          requires:
+            - build
+      - integration-tests:
+          requires:
+            - unit-tests
+      - compatibility-tests:
+          requires:
+            - integration-tests
+      - accessibility-tests:
+          requires:
+            - integration-tests
+      - performance-tests:
+          requires:
+            - compatibility-tests
+      - security-tests:
+          requires:
+            - accessibility-tests
+      - deploy:
+          requires:
+            - performance-tests
+            - security-tests
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - integration
+
+  # Workflow pour la branche develop
+  develop:
+    jobs:
+      - build
+      - unit-tests
+      - integration-tests
+      - compatibility-tests
+      - accessibility-tests
