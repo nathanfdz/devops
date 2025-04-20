@@ -124,6 +124,10 @@ workflows:
       - integration-tests
       - compatibility-tests
       - accessibility-tests
+    filters:
+      branches:
+        only:
+          - develop # Exécution uniquement sur la branche `develop`
 
   # Workflow pour la branche integration
   integration:
@@ -136,3 +140,7 @@ workflows:
       - performance-tests
       - security-tests
       - deploy
+    filters:
+      branches:
+        only:
+          - integration
